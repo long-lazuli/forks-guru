@@ -8,8 +8,8 @@ const connection = Mongoose.connect("mongodb://localhost/forks-guru-test", { use
 import PersonSchema from './schemas/person'
 
 ForkGuruResource( app, {
-    route: 'person',
-    routePlural: 'people',
+    name: 'person',
+    namePlural: 'people',
     slug: 'id',
     collection: 'person',
     connection,
