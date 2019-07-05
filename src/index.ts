@@ -1,19 +1,9 @@
-import Express from "express"
-import Mongoose, { MongooseDocument } from "mongoose"
+import {Application as ExpressApp} from "express"
 import BodyParser from "body-parser"
+import {ForkinResource} from './types'
+import createMethods from './createMethods'
 
-import * as guru from './methods'
-
-type ForkinResource = {
-    route: string
-    routePlural?: string,
-    slug?: string
-    connection: Promise<typeof Mongoose>
-    collection: string,
-    schema: Mongoose.Schema<unknown>
-}
-
-export default (app: Express.Application, resource: ForkinResource): void => {
+export default (app: ExpressApp, resource: ForkinResource): void => {
 
     const {
         route,
@@ -32,12 +22,14 @@ export default (app: Express.Application, resource: ForkinResource): void => {
     app.use(BodyParser.json())
     app.use(BodyParser.urlencoded({ extended: true }))
     
+    const methods = createMethods(resource)
+
     // INDEX
-    app.get(`/${routePlural}`, guru.indexOfResources)
-    
-    /* C */app.post(`/${route}`, guru.createResource)
-    /* R */app.get(`/${route}/:id`, guru.requestResource)
-    /* U */app.put(`/${route}/:id`, guru.updateResource)
-    /* D */app.delete(`/${route}/:id`, guru.deleteResource)
+    app.get(`/${routePlural}`, methods.list)
+
+    /* C */app.post(`/${route}`, methods.create)
+    /* R */app.get(`/${route}/:id`, methods.request)
+    /* U */app.put(`/${route}/:id`, methods.update)
+    /* D */app.delete(`/${route}/:id`, methods.delete)
     
 }
