@@ -1,13 +1,12 @@
-import Mongoose from "mongoose"
+import {Mongoose, Document, Schema} from "mongoose"
 
-interface Person extends Mongoose.Document {
-    id?: any;
+interface Person extends Document {
     firstname: string,
     lastname: string
 }
-const PersonSchema = new Mongoose.Schema<Mongoose.Document & Person>({
-    firstname: { type : String },
-    lastname: { type : String}
-})
-
-export default PersonSchema
+export default (mongoose: Mongoose) => {
+    return new mongoose.Schema<Document & Person>({
+        firstname: { type : String },
+        lastname: { type : String}
+    })
+}

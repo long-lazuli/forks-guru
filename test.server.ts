@@ -1,23 +1,27 @@
 import Express from "express"
-import Mongoose from "mongoose"
+import mongoose from "mongoose"
 import ForkGuruResource from './src/index'
-
-const app = Express()
-const connection = Mongoose.connect("mongodb://localhost/forks-guru-test", { useNewUrlParser: true })
 
 import PersonSchema from './schemas/person'
 
-ForkGuruResource( app, {
-    name: 'person',
-    namePlural: 'people',
-    slug: 'id',
-    collection: 'person',
-    connection,
-    schema: PersonSchema
-})
+mongoose.connect("mongodb://localhost/forks-guru-test", { useNewUrlParser: true })
+mongoose.connection.on('error', console.error.bind(console, 'connection error:'));
+mongoose.connection.once('open', function() {
 
-const PORT = process.env.PORT || 5058
-        
-app.listen(PORT, () => {
-    console.log(`Listening at :${PORT}...`);
-});
+    const app = Express()
+
+    // we're connected!
+    ForkGuruResource( app, {
+        name: 'person',
+        namePlural: 'people',
+        collection: 'person',
+        schema: PersonSchema(mongoose)
+    })
+
+    const PORT = process.env.PORT || 5058
+            
+    app.listen(PORT, () => {
+        console.log(`Listening at :${PORT}...`);
+    })
+    
+})

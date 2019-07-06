@@ -2,27 +2,33 @@ import {Application as ExpressApp} from "express"
 import BodyParser from "body-parser"
 import {ForkinResource} from './types'
 import createMethods from './createMethods'
+import { model as MongooseModel } from "mongoose";
+import Hashids from "hashids"
 
 export default (app: ExpressApp, resource: ForkinResource): void => {
 
     const {
         name,
         namePlural= `${name}${'s'}`,
-        slug= '_id',
-        connection,
         collection= `${name}`,
         schema
     } = resource
+    const hashids = new Hashids(
+        'secret things impossible to guess',
+        0,
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghjkmnopqrstuvwxyz')
 
-    schema.virtual(slug).get(function(){
-        return this._id.toHexString()
-    })
     schema.set('toJSON', {virtuals: true})
-    
+    schema.virtual('slug')
+        .get(function(){ return hashids.encodeHex(this._id) })
+        .set(function(slug: string){ this._id = hashids.decodeHex(slug) })
+
+    const resourceModel = MongooseModel(name, schema, collection)
+
     app.use(BodyParser.json())
     app.use(BodyParser.urlencoded({ extended: true }))
     
-    const methods = createMethods(resource)
+    const methods = createMethods(resourceModel)
 
     // INDEX
     app.get(`/${namePlural}`, methods.list)

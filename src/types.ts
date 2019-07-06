@@ -1,11 +1,8 @@
-import Mongoose from "mongoose"
+import {Mongoose, Schema} from "mongoose"
 
 export type ForkinResource = {
     name: string
-    connection: Promise<typeof Mongoose>
-    schema: Mongoose.Schema<unknown>
-
+    schema: Schema<unknown>
     namePlural?: string
-    slug?: string
     collection?: string
 }
